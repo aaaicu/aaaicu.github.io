@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-hg/KYRMps2UFk7FptbAZU4EUdxjPofYkUw9OFR7UMyw='; style-src 'sha256-YogFyAOLtyxo1Md1g1u4nQ4jLHPkc1zvBjDvHsPhFyY='; connect-src 'none'; img-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>위드앨범 초대</title>
+<style>
+:root{--bg:#f6f8f7;--card:#fff;--fg:#1a1c20;--muted:#555d6d;--line:#dcdee3;--cta:#2a3038;--on:#fff;--bad:#c2271d;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#121417;--card:#1b1e23;--fg:#eef0f2;--muted:#b0b3ba;--line:#33373f;--cta:#eef0f2;--on:#16171b;--bad:#ff7a70}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}
+main{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px 22px;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font-size:22px;line-height:1.35}
+p{margin:0;color:var(--muted);font-size:15px}
+a.btn,button{display:block;width:100%;min-height:52px;padding:14px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--fg);font:inherit;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
+a.btn{background:var(--cta);color:var(--on);border-color:var(--cta)}
+#err{color:var(--bad)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<div id="ok">
+<h1>위드앨범 앨범에 초대받았어요</h1>
+<p>아래 버튼을 누르면 위드앨범 앱에서 초대 내용을 확인할 수 있어요. 수락하기 전에는 앨범에 참여되지 않아요.</p>
+<p>&nbsp;</p>
+<a class="btn" id="open" href="#">앱에서 열기</a>
+<p>&nbsp;</p>
+<button id="copy" type="button">초대 링크 복사</button>
+<p>&nbsp;</p>
+<p>버튼을 눌러도 앱이 열리지 않으면 링크를 복사해 앱의 초대함에 붙여넣으세요. 앱이 없으면 초대한 사람에게 설치 방법을 물어보세요.</p>
+</div>
+<div id="err" hidden>
+<h1>초대 링크를 읽지 못했어요</h1>
+<p>링크가 잘렸거나 올바르지 않아요. 초대한 사람에게 다시 받아 주세요.</p>
+</div>
+</main>
+<script>
+(function(){
+var el=function(i){return document.getElementById(i)};
+var raw=location.hash.slice(1);
+try{history.replaceState(null,'',location.pathname)}catch(e){}
+var q=new URLSearchParams(raw);
+var ok=['v','url','spki_sha256','token','relay','rid','public_url','public_route'];
+var out=new URLSearchParams();
+var bad=false;
+q.forEach(function(v,k){if(ok.indexOf(k)<0){bad=true}else{out.set(k,v)}});
+var tok=q.get('token')||'',pin=q.get('spki_sha256')||'',url=q.get('url')||'';
+if(bad||q.get('v')!=='1'||!/^[A-Za-z0-9_-]{43}$/.test(tok)||!/^[0-9a-f]{64}$/.test(pin)||url.indexOf('https://')!==0){
+el('ok').hidden=true;el('err').hidden=false;return}
+var link='withalbum://invite?'+out.toString();
+el('open').href=link;
+el('copy').addEventListener('click',function(){
+var b=this;
+navigator.clipboard.writeText(link).then(function(){b.textContent='복사했어요 · 앱의 초대함에 붙여넣으세요'},function(){b.textContent='복사하지 못했어요 · 초대한 사람에게 다시 받아 주세요'})});
+})();
+</script>
+</body>
+</html>
